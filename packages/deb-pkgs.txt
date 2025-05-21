@@ -1,0 +1,9 @@
+snap
+batcat
+podman
+podman-compose
+ranger
+htop
+fgf
+ripgrep
+zsh
