@@ -109,6 +109,5 @@ source $ZSH/oh-my-zsh.sh
 alias vim=nvim
 
 export PATH=$PATH:/snap/bin
-export PATH=$PATH:/home/quigon189/.local/bin
 export EDITOR=nvim
 export VISUAL=nvim

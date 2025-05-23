@@ -1,3 +1,3 @@
-nvim
-go
-rustup
+nvim --classic
+go --classic
+rustup --classic
