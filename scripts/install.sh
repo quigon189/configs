@@ -1,34 +1,62 @@
 #! /bin/bash
 
+echo "Для установки пакетов требуются права администратора"
+sudo -v || exit 1
+
 if [ -f /etc/debian_version ]; then
 
-	cp -r ./home/* ~/ 2> /dev/null
+	if [ -f packages/deb-pkgs.txt ]; then
+		echo "Устанавливаем debian пакеты"
+		xargs -a packages/deb-pkgs.txt sudo apt install -y
+	else
+		echo "Файл packages/deb-pkgs.txt не найден"
+	fi
 
-	echo "Устанавливаем debian пакеты"
-	xargs -a packages/deb-pkgs.txt sudo apt install -y
+	if command -v snap && [ -f packages/snap-pkgs.txt ]; then
+		echo "Устанавливаем пакеты snap"
+		while read -r line; do
+			pkg=$(echo "$line" | sed 's/#.*//' | xargs)
+			[ -z "$pkg" ] && continue
 
-	echo "Устанавливаем пакеты snap"
-	xargs -a packages/snap-pkgs.txt snap install --classic
+			sudo snap install $pkg
+		done < packages/snap-pkgs.txt
+	else
+		echo "Нет команды snap или файл packages/snap-pkgs.txt не найден"
+	fi
 
+	echo "Устанавливаем rust"
 	if command -v rustup &> /dev/null; then
 		rustup toolchain install stable
 		rustup default stable
 		rustup component add rust-analyzer clippy rustfmt
 		#если добавятся пакеты cargo
 		#xargs -a packages/cargo-pkgs.txt cargo install --locked
+	else
+		echo "Команда rustup не найдена"
 	fi
 
-	echo "Устанавливаем pipx"
 	if ! command -v pipx &> /dev/null; then
-		python3 -m pip install --user pipx
+		echo "Устанавливаем pipx"
+		python3 -m pip install --user pipx 
 		python3 -m pipx ensurepath
 	fi
 
 	echo "Устанавливаем uv"
-	pipx install uv --forse
+	pipx install uv
 	pipx ensurepath
 
 	if [ ! -d ~/.oh-my-zsh ]; then
-		sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+		echo "Устанавливаем Oh-My-Zsh"
+		RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+		sudo chsh -s $(which zsh) $USER
+	else
+		echo "Oh-My-Zsh уже установлен"
 	fi
+
+	echo "Копируем файлы конфигурации"
+	cp -r ./home/* ~/ 2> /dev/null
+
+	source ~/.zshrc
+
+	echo "Установка завершена. Перезапустите терминал"
 fi

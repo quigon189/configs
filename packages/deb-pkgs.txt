@@ -1,9 +1,9 @@
 snap
-batcat
+bat
 podman
 podman-compose
 ranger
 htop
-fgf
+fzf
 ripgrep
 zsh
