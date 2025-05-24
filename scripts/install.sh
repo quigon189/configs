@@ -54,9 +54,7 @@ if [ -f /etc/debian_version ]; then
 	fi
 
 	echo "Копируем файлы конфигурации"
-	cp -r ./home/* ~/ 2> /dev/null
-
-	source ~/.zshrc
+	cp -r ./home/.* ~/ 2> /dev/null
 
 	echo "Установка завершена. Перезапустите терминал"
 fi
